@@ -17,9 +17,6 @@ If you like the EnaSolar Home Assistant Integration, please give it a star or fo
 #### Installation
 - [Install EnaSolar Integration](./docs/install.md)
 
-#### Documentation
-- [Error Code and Troubleshooting](./docs/error_code.md)
-
 If you want to contribute to the EnaSolar integration, please create issues or pull requests in this repo.
 
 ## Prerequisites

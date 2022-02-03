@@ -2,7 +2,7 @@
   "domain": "enasolar",
   "name": "EnaSolar Solar Inverter",
   "version": "1.0.0",
-  "documentation": "ihttps://github.com/geustace/tuya-home-assistant/blob/main/README.md",
+  "documentation": "https://github.com/geustace/home-assistant-enasolar#readme"
   "requirements": [
       "pyenasolar==0.1.6"
   ],
