@@ -11,42 +11,32 @@ This topic describes how to install and use the EnaSolar integration in Home Ass
 
 ## Set up
 
-After you have installed Home Assistant Core, you will need to download the ENaSOlar files from GitHub and copy them to your Home Assistant deployment
+After you have installed Home Assistant Core, you will need to download the EnaSolar files from GitHub and copy them to your Home Assistant deployment. You can find the files on [GitHub](https://github.com/geustace/home-assistant-enasolar). Either clone the repo or download the ZIP file by selecting the Code button.
+
+Copy the **enasolar** folder to the **config/custom_components** folder in your Home Assistant deployment.
 
 > **Note**:
-Only Home Assistant 2021.10.4 and later versions support the official Tuya integration.
+Only Home Assistant 2021.10.4 and later versions support this integration.
 
-<img src="https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/163463819292e82c8a3e7.png" width="45%">
+1. Enter `<your HASS server>:8123` into the address bar in your browser and hit Enter to connect to Home Assistant.
+2. Log in.
+3. Select **Configuration** > **Integrations**.
 
-1. Enter `localhost:8123` into the address bar in your browser and hit Enter to connect to Home Assistant.
-2. Register and log in.
-3. Click **Configuration** > **Integrations**.
+   <img src="https://github.com/geustace/home-assistant-enasolar/docs/EnaSolar-1.jpg" width="70%" alt="Integrations">
 
-   <img src="https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/163463151418c9efa14e6.png" width="70%" alt="Integrations">
+4. On the **Integrations** page in the configurations panel, select the **+ ADD INTEGRATION** button in the lower right and search for **enasolar**.
+   <img src="https://github.com/geustace/home-assistant-enasolar/docs/EnaSolar-2.jpg" width="70%" alt="Add integration">
 
-4. On the **Integrations** page in the configurations panel, click the **+** button in the lower right and search for Tuya.
-   <img src="https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/1634631514a5affae4b40.png" width="70%" alt="Add integration">
+5. Select **EnaSolar Solar Inverter** and set up the integration.
 
-5. Select **Tuya** and set up the integration.
+   <img src="https://github.com/geustace/home-assistant-enasolar/docs/EnaSolar-3.jpg" width="65%">
+<a id="Config 1"></a>
+6. Replace **my.inverter.fqdn** with the Fully Qualified Domain Name or the IP Address of your inverter.  You can enter a name but this is only useful if you have more than one inverter and need to differentiate the sensors. Select **NEXT**
 
-   <img src="https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/1634631514c5d0133715b.png" width="65%">
-<a id="config"></a>
-6. Enter your Tuya credentials.
+   <img src="https://github.com/geustace/home-assistant-enasolar/docs/EnaSolar-4.jpg" width="65%" alt="Config 2">
+7. The next panel has the capabilities andf attributes of your inverter.  If you know that they are incorrect, you can override them by selecting appropriate values.
 
-   <img src="https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/1634631514b892f2c717c.png" width="50%" alt="Smart Home">
+   <img src="https://github.com/geustace/home-assistant-enasolar/docs/EnaSolar-5.jpg" width="65%" alt="Config 3">
 
-   | Fields | Description |
-   | ------- | -------- |
-   | Country | Select the region of your account of the Tuya Smart app or Smart Life app.<blockquote>**Note**: Open the mobile app you use and tap **Me** > **Setting** > **Account and Security** > **Region**. |
-   | Tuya IoT Access ID and Tuya IoT Access Secret | Go to the [Tuya IoT Development Platform](https://iot.tuya.com/cloud/) and select your cloud project. Click the **Overview** tab and find the **Access ID** and **Access Secret** in the **Authorization Key** area. |
-   | Account | Your account of the Tuya Smart app or Smart Life app. <blockquote><b>Attention</b>：Do not use the Tuya IoT Development platform account to log in.  |
-   | Password | Your password of the Tuya Smart app or Smart Life app. |
+7. Select **Submit**.
 
-   > **Note**：
-   The mobile app mentioned in the above table must be the one you use to scan the QR code for linking devices to your cloud project on the [Tuya IoT Development Platform](https://iot.tuya.com/).
-
-7. Click **Submit**.
-
-   Click **Overview** in the sidebar on the left. You will find all the smart devices linked to your cloud project created on the [Tuya IoT Development Platform](https://iot.tuya.com/).
-
-   ![Image](https://airtake-public-data-1254153901.cos.ap-shanghai.myqcloud.com/content-platform/hestia/1634631514c040ab52f07.png)
