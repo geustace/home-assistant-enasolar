@@ -23,6 +23,7 @@ from .const import (
     DC_STRINGS,
     DEFAULT_HOST,
     DEFAULT_NAME,
+    DOMAIN,
     HAS_POWER_METER,
     HAS_SOLAR_METER,
     HAS_TEMPERATURE,

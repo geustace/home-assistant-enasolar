@@ -8,8 +8,10 @@ import pyenasolar
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryNotReady, ConfigEntryAuthFailed
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import (
+    ConfigEntryNotReady,
+)
 
 from .const import DOMAIN
 
