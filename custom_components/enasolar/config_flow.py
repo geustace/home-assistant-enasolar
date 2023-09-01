@@ -11,11 +11,8 @@ import pyenasolar
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntry, OptionsFlow
-from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 import homeassistant.helpers.config_validation as cv
-from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_CAPABILITY,
@@ -23,14 +20,9 @@ from .const import (
     CONF_HOST,
     CONF_MAX_OUTPUT,
     CONF_NAME,
-    CONF_SUN_DOWN,
-    CONF_SUN_UP,
     DC_STRINGS,
     DEFAULT_HOST,
     DEFAULT_NAME,
-    DEFAULT_SUN_DOWN,
-    DEFAULT_SUN_UP,
-    DOMAIN,
     HAS_POWER_METER,
     HAS_SOLAR_METER,
     HAS_TEMPERATURE,
@@ -51,7 +43,7 @@ def _get_ip(host: str) -> str | None:
 class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """User Configuration of EnaSolar Integration."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -81,12 +73,6 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected exception")
             error = "unknown"
         return error
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
-        """Get options flow for this handler."""
-        return EnaSolarOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -188,53 +174,4 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=_errors,
             last_step=True,
-        )
-
-
-class EnaSolarOptionsFlowHandler(config_entries.OptionsFlow):
-    """Allow Polling window to be updated."""
-
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        """Initialize EnaSolar options flow."""
-        self.config_entry = config_entry
-        self._options = dict(config_entry.options)
-
-    async def async_step_init(self, user_input: dict[str, Any] | None) -> FlowResult:
-        """Allow user to reset the Polling times."""
-
-        _errors = {}
-        if user_input is not None:
-            input_valid = True
-            if dt_util.parse_time(user_input[CONF_SUN_UP]) is None:
-                _errors[CONF_SUN_UP] = "time_invalid"
-                input_valid = False
-            if dt_util.parse_time(user_input[CONF_SUN_DOWN]) is None:
-                _errors[CONF_SUN_DOWN] = "time_invalid"
-                input_valid = False
-            if input_valid:
-                if dt_util.parse_time(user_input[CONF_SUN_UP]) >= dt_util.parse_time(user_input[CONF_SUN_DOWN]):  # type: ignore
-                    _errors[CONF_SUN_DOWN] = "time_range"
-                    input_valid = False
-            if input_valid:
-                self._options.update(user_input)
-                return self.async_create_entry(title="", data=self._options)
-        else:
-            user_input = {}
-            if self._options:
-                user_input.update(self._options)
-
-        return self.async_show_form(
-            step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SUN_UP, default=user_input.get(CONF_SUN_UP, DEFAULT_SUN_UP)
-                    ): cv.string,
-                    vol.Required(
-                        CONF_SUN_DOWN,
-                        default=user_input.get(CONF_SUN_DOWN, DEFAULT_SUN_DOWN),
-                    ): cv.string,
-                }
-            ),
-            errors=_errors,
         )

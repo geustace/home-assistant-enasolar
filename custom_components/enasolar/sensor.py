@@ -1,8 +1,7 @@
 """EnaSolar solar inverter interface."""
 
 from __future__ import annotations
-
-from datetime import date, datetime
+from datetime import date
 import logging
 
 from homeassistant.components.sensor import (
@@ -17,28 +16,20 @@ from homeassistant.const import (
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_TEMPERATURE,
     ENERGY_KILO_WATT_HOUR,
-    EVENT_HOMEASSISTANT_START,
     POWER_KILO_WATT,
     TEMP_CELSIUS,
     TEMP_FAHRENHEIT,
 )
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
-from homeassistant.helpers.event import async_call_later
-from homeassistant.util import dt as dt_util
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.sun import is_up
+from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
 from .const import (
     CONF_CAPABILITY,
     CONF_DC_STRINGS,
     CONF_MAX_OUTPUT,
-    CONF_SUN_DOWN,
-    CONF_SUN_UP,
-    DEFAULT_SUN_DOWN,
-    DEFAULT_SUN_UP,
     DOMAIN,
     ENASOLAR_UNIT_MAPPINGS,
-    SCAN_DATA_MIN_INTERVAL,
-    SCAN_MAX_INTERVAL,
-    SCAN_METERS_MIN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,17 +46,10 @@ async def async_setup_entry(
 
     enasolar = hass.data[DOMAIN][config_entry.entry_id]
 
-    enasolar.sun_up = dt_util.parse_time(
-        config_entry.options.get(CONF_SUN_UP, DEFAULT_SUN_UP)
-    )
-    enasolar.sun_down = dt_util.parse_time(
-        config_entry.options.get(CONF_SUN_DOWN, DEFAULT_SUN_DOWN)
-    )
     enasolar.capability = config_entry.data[CONF_CAPABILITY]
     enasolar.dc_strings = config_entry.data[CONF_DC_STRINGS]
     enasolar.max_output = config_entry.data[CONF_MAX_OUTPUT]
 
-    _LOGGER.debug("Polling between %s and %s", enasolar.sun_up, enasolar.sun_down)
     _LOGGER.debug(
         "Max Output: %s, DC Strings: %s, Capability: %s",
         enasolar.max_output,
@@ -92,10 +76,10 @@ async def async_setup_entry(
 
     async_add_entities([*hass_meter_sensors, *hass_data_sensors])
 
-    async def async_enasolar_meters():
+    async def _async_enasolar_meters(hass,enasolar):
         """Update the EnaSolar Meter sensors."""
 
-        if enasolar.sun_up <= datetime.now().time() <= enasolar.sun_down:
+        if is_up(hass):
             values = await enasolar.read_meters()
         else:
             values = False
@@ -116,10 +100,10 @@ async def async_setup_entry(
             )
         return values
 
-    async def async_enasolar_data():
+    async def _async_enasolar_data(hass,enasolar):
         """Update the EnaSolar Data sensors."""
 
-        if enasolar.sun_up <= datetime.now().time() <= enasolar.sun_down:
+        if is_up(hass):
             values = await enasolar.read_data()
         else:
             values = False
@@ -140,59 +124,18 @@ async def async_setup_entry(
             )
         return values
 
-    def start_update_interval(event):  # pylint: disable=unused-argument
-        """Start the update interval scheduling."""
-        config_entry.async_on_unload(
-            async_track_time_interval_backoff(
-                hass, async_enasolar_meters, SCAN_METERS_MIN_INTERVAL
-            )
-        )
-        config_entry.async_on_unload(
-            async_track_time_interval_backoff(
-                hass, async_enasolar_data, SCAN_DATA_MIN_INTERVAL
-            )
-        )
-
-    if hass.is_running:
-        start_update_interval(None)
-    else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_START, start_update_interval)
-
-
-@callback
-def async_track_time_interval_backoff(hass, action, min_interval) -> CALLBACK_TYPE:
-    """Add a listener that fires repetitively and increases the interval when failed."""
-    remove = None
-    interval = min_interval
-
-    async def interval_listener(now=None):  # pylint: disable=unused-argument
-        """Handle elapsed interval with backoff."""
-        nonlocal interval, remove
-
-        try:
-            if await action():
-                interval = min_interval
-            else:
-                interval = min(interval * 2, SCAN_MAX_INTERVAL)
-        finally:
-            remove = async_call_later(hass, interval, interval_listener)
-
-    hass.async_create_task(interval_listener())
-
-    def remove_listener():
-        """Remove interval listener."""
-        remove()  # pylint: disable=not-callable
-
-    return remove_listener
-
-
-class EnaSolarSensor(SensorEntity):
+class EnaSolarSensor(CoordinatorEntity,SensorEntity):
     """Representation of a EnaSolar sensor."""
 
     def __init__(
-        self, pyenasolar_sensor, inverter_name: str = None, serial_no: str = None
-    ):
+        self,
+        coordinator: DataUpdateCoordinator,
+        pyenasolar_sensor,
+        inverter_name: str = None,
+        serial_no: str = None
+    ) -> None:
         """Initialize the EnaSolar sensor."""
+        super().__init__(coordinator)
         self.sensor = pyenasolar_sensor
         if inverter_name:
             self._attr_name = f"{inverter_name}_{self.sensor.name}"
@@ -206,7 +149,6 @@ class EnaSolarSensor(SensorEntity):
         else:
             self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
         self._attr_native_unit_of_measurement = ENASOLAR_UNIT_MAPPINGS[self.sensor.unit]
-        self._attr_should_poll = False
 
     @property
     def native_value(self):
@@ -220,25 +162,9 @@ class EnaSolarSensor(SensorEntity):
             return DEVICE_CLASS_POWER
         if self._attr_native_unit_of_measurement == ENERGY_KILO_WATT_HOUR:
             return DEVICE_CLASS_ENERGY
-        if self._attr_unit_of_measurement in (TEMP_CELSIUS, TEMP_FAHRENHEIT):
+        if self._attr_native_unit_of_measurement in (TEMP_CELSIUS, TEMP_FAHRENHEIT):
             return DEVICE_CLASS_TEMPERATURE
         return None
-
-    @callback
-    def async_update_values(self, unknown_state=False):
-        """Update this sensor."""
-        update = False
-
-        if self.sensor.value != self._native_value:
-            update = True
-            self._native_value = self.sensor.value
-
-        if unknown_state and self._native_value is not None:
-            update = True
-            self._native_value = None
-
-        if update:
-            self.async_write_ha_state()
 
     @property
     def unique_id(self):
