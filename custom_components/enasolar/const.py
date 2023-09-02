@@ -23,7 +23,6 @@ CONF_MAX_OUTPUT = "max_output"
 CONF_DC_STRINGS = "dc_strings"
 
 ENASOLAR = "enasolar"
-SCAN_DATA_INTERVAL = 3600
 SCAN_METERS_INTERVAL = 60
 
 MAX_OUTPUT = (1.5, 2.0, 3.0, 3.8, 4.0, 5.0)

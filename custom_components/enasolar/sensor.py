@@ -108,6 +108,11 @@ class EnaSolarEntity(CoordinatorEntity, SensorEntity):
         else:
             self._attr_state_class = SensorStateClass.TOTAL_INCREASING
         self._attr_native_unit_of_measurement = ENASOLAR_UNIT_MAPPINGS[self.sensor.unit]
+        if self._attr_native_unit_of_measurement in (
+            UnitOfTime.HOURS,
+            UnitOfTime.DAYS,
+        ):
+            self._attr_suggested_display_precision = 1
 
     @property
     def native_value(self):
