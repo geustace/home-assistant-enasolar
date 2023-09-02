@@ -46,21 +46,8 @@ Copy the **custom_components/enasolar** folder to the **config/custom_components
 
 There is an issue with the internal web server in the inverter.  If it is polled too aggressively it locks up and will no longer respond.  The only solution to getting it back online is to turn the inverter off by turning the main AC switch OFF, waiting about 10 secs and then turning it ON again.
 
-To prevent the lock up, the integration polls for meters every minute and accumulated data every 10 minutes.
+To prevent the lock up, the integration polls for meters every minute.
 
-There is also little point in polling at night. Whilst it is possible to base this on the **sun** integration, the easy way was to make the polling window configurable. Likely to be changed in version 2.
-
-## Updating the Polling Window.
-
-1. Select **Configuration** > **Integrations**.
-
-2. Select the **Configure** link on the EnaSolar integration
-
-   <img src="https://github.com/geustace/home-assistant-enasolar/blob/main/docs/EnaSolar-6.jpg" width="65%" alt="Polling 1">
-
-3. Update the times to change the polling window.
-
-   <img src="https://github.com/geustace/home-assistant-enasolar/blob/main/docs/EnaSolar-7.jpg" width="65%" alt="Polling 2">
-
-4. Select **SUBMIT**
+There is also little point in polling at night. The code has been updated to only poll when the Sun
+is deemed to be UP by Home Assistant.
 
