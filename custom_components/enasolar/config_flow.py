@@ -11,6 +11,8 @@ import pyenasolar
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, OptionsFlow
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 import homeassistant.helpers.config_validation as cv
 
@@ -20,6 +22,7 @@ from .const import (
     CONF_HOST,
     CONF_MAX_OUTPUT,
     CONF_NAME,
+    CONF_NO_SUN,
     DC_STRINGS,
     DEFAULT_HOST,
     DEFAULT_NAME,
@@ -74,6 +77,14 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected exception")
             error = "unknown"
         return error
+
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Get options flow for this handler."""
+        return EnaSolarOptionsFlowHandler(config_entry)
+
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -170,9 +181,38 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             "temperature": "has a TEMPERATURE meter",
                             "fahrenhiet": "Temperatures are in FAHRENHIET",
                         }
-                    ),
+                    )
                 }
             ),
             errors=_errors,
             last_step=True,
+        )
+class EnaSolarOptionsFlowHandler(config_entries.OptionsFlow):
+    """Set Polling window to be updated."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        """Initialize EnaSolar options flow."""
+        self.config_entry = config_entry
+        self._options = dict(config_entry.options)
+
+    async def async_step_init(self, user_input: dict[str, Any] | None) -> FlowResult:
+        """Allow user to update polling."""
+
+        if user_input is not None:
+            self._options.update(user_input)
+            return self.async_create_entry(title="", data=self._options)
+        else:
+            user_input = {}
+            if self._options:
+                user_input.update(self._options)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_NO_SUN, default=user_input.get(CONF_NO_SUN, False)
+                    ): cv.boolean,
+                }
+            ),
         )

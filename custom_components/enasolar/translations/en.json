@@ -13,13 +13,26 @@
             "unexpected_response": "Unexpected response from Inverter",
             "unknown": "Unexpected error"
         },
+        "options": {
+            "step": {
+                "description": "For a typical solar installation, there is no point in polling when the sun is down\n\nIf the inverter is being used with an alternative DC source e.g. a wind turbine, polling may be appropriate. After updating, manually reload the intergration",
+                "init": {
+                    "data": {
+                        "no_sun": "Poll even when no Sun"
+                    },
+                    "title": "EnaSolar Polling"
+                }
+            }
+        },
         "step": {
             "inverter": {
                 "data": {
                     "capability": "Inverter Capabilities",
                     "dc_strings": "Number of DC strings in the array",
-                    "max_output": "Maximum AC Output Power"
+                    "max_output": "Maximum AC Output Power",
+                    "no_sun": "Poll even when no Sun"
                 },
+                "description": "The integration will attempt to determine the capabilities of the inverter.\n\nIf they are incorrect, they can be overridden",
                 "title": "EnaSolar Model Characteristics"
             },
             "user": {
@@ -27,17 +40,6 @@
                     "host": "FQDN or IP Address of the Inverter",
                     "name": "A name for the Inverter (optional)"
                 }
-            }
-        }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "data": {
-                    "sun_down": "The time that polling will cease each day",
-                    "sun_up": "The time that polling will start each day"
-                },
-                "title": "EnaSolar Polling"
             }
         }
     }

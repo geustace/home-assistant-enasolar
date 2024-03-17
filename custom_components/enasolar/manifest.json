@@ -1,7 +1,7 @@
 {
   "domain": "enasolar",
   "name": "EnaSolar Solar Inverter",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "documentation": "https://github.com/geustace/home-assistant-enasolar/blob/main/README.md",
   "requirements": [
       "pyenasolar==0.2.2"

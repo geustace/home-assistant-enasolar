@@ -46,3 +46,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         del hass.data[DOMAIN][entry.entry_id]
     return unload_ok
+
+async def options_update_listener(
+    hass: HomeAssistant, config_entry: ConfigEntry
+):
+    """Handle options update."""
+    await hass.config_entries.async_reload(config_entry.entry_id)

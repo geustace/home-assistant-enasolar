@@ -28,6 +28,7 @@ from .const import (
     CONF_CAPABILITY,
     CONF_DC_STRINGS,
     CONF_MAX_OUTPUT,
+    CONF_NO_SUN,
     DOMAIN,
     ENASOLAR_UNIT_MAPPINGS,
     SCAN_METERS_INTERVAL,
@@ -45,6 +46,7 @@ async def async_setup_entry(
     enasolar.dc_strings = entry.data[CONF_DC_STRINGS]
     enasolar.max_output = entry.data[CONF_MAX_OUTPUT]
     enasolar.inverter_name = entry.data[CONF_NAME]
+    enasolar.no_sun = entry.options[CONF_NO_SUN]
 
     coordinator = EnaSolarCoordinator(hass, enasolar)
 
@@ -53,10 +55,11 @@ async def async_setup_entry(
     enasolar.data_sensors = []
 
     _LOGGER.debug(
-        "Max Output: %s, DC Strings: %s, Capability: %s",
+        "Max Output: %s, DC Strings: %s, Capability: %s, No Sun: %s ",
         enasolar.max_output,
         enasolar.dc_strings,
         enasolar.capability,
+        enasolar.no_sun
     )
 
     enasolar.setup_sensors()
@@ -175,7 +178,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Get the sensor data from the inverter."""
 
-        if is_up(self.hass):
+        if is_up(self.hass) or self.enasolar.no_sun:
             meter_values = await self.enasolar.read_meters()
         else:
             meter_values = False
@@ -196,7 +199,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
                 "Meter Sensor %s updated => %s", sensor.sensor.key, sensor.native_value
             )
 
-        if is_up(self.hass):
+        if is_up(self.hass) or self.enasolar.no_sun:
             data_values = await self.enasolar.read_data()
         else:
             data_values = False
