@@ -22,8 +22,6 @@ from homeassistant.const import (
     UnitOfTime,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.sun import is_up
-
 from .const import (
     CONF_CAPABILITY,
     CONF_DC_STRINGS,
@@ -175,10 +173,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Get the sensor data from the inverter."""
 
-        if is_up(self.hass):
-            meter_values = await self.enasolar.read_meters()
-        else:
-            meter_values = False
+        meter_values = await self.enasolar.read_meters()
 
         for sensor in self.enasolar.meter_sensors:
             state_unknown = False
@@ -196,10 +191,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
                 "Meter Sensor %s updated => %s", sensor.sensor.key, sensor.native_value
             )
 
-        if is_up(self.hass):
-            data_values = await self.enasolar.read_data()
-        else:
-            data_values = False
+        data_values = await self.enasolar.read_data()
 
         for sensor in self.enasolar.data_sensors:
             state_unknown = False
