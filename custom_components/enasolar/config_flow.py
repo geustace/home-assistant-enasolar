@@ -187,6 +187,8 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
             last_step=True,
         )
+
+
 class EnaSolarOptionsFlowHandler(config_entries.OptionsFlow):
     """Set Polling window to be updated."""
 
@@ -215,4 +217,6 @@ class EnaSolarOptionsFlowHandler(config_entries.OptionsFlow):
                     ): cv.boolean,
                 }
             ),
+            errors=None,
+            last_step=True
         )

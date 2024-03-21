@@ -9,24 +9,12 @@
       },
       "inverter": {
         "title": "EnaSolar Model Characteristics",
+        "description": "If the capabilities can not be determined or are incorrect,\n\nthey can be overriden",
         "data": {
            "max_output": "Maximum AC Output Power",
            "dc_strings": "Number of DC strings in the array",
-           "capability": "Inverter Capabilities",
-           "no_sun": "Poll even when no Sun"
-        },
-        "description": "The integration will attempt to determine the capabilities of the inverter.\n\nIf they are incorrect, they can be overridden"
-      }
-    },
-    "options": {
-      "step": {
-        "init": {
-            "data": {
-              "no_sun": "Poll even when no Sun"
-            },
-            "title": "EnaSolar Polling"
-        },
-        "description": "For a typical solar installation, there is no point in polling when the sun is down\n\nIf the inverter is being used with an alternative DC source e.g. a wind turbine, polling may be appropriate. After updating, manually reload the intergration"
+           "capability": "Inverter Capabilities"
+        }
       }
     },
     "error": {
@@ -41,6 +29,17 @@
     },
     "abort": {
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+          "title": "EnaSolar Polling",
+          "description": "For a typical solar installation, there is no point in polling when the sun is down.\n\nIf the inverter is being used with an alternative DC source e.g. a wind turbine, polling may be appropriate.\n\nAfter updating, it may be necessary to manually reload the intergration",
+          "data": {
+            "no_sun": "Poll even when no Sun"
+          }
+      }
     }
   }
 }

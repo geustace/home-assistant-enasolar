@@ -46,7 +46,10 @@ async def async_setup_entry(
     enasolar.dc_strings = entry.data[CONF_DC_STRINGS]
     enasolar.max_output = entry.data[CONF_MAX_OUTPUT]
     enasolar.inverter_name = entry.data[CONF_NAME]
-    enasolar.no_sun = entry.options[CONF_NO_SUN]
+    if CONF_NO_SUN in entry.options:
+        enasolar.no_sun = entry.options[CONF_NO_SUN]
+    else:
+        enasolar.no_sun = False
 
     coordinator = EnaSolarCoordinator(hass, enasolar)
 
