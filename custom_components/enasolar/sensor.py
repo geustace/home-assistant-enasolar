@@ -28,12 +28,14 @@ from .const import (
     CONF_CAPABILITY,
     CONF_DC_STRINGS,
     CONF_MAX_OUTPUT,
+    CONF_NO_SUN,
     DOMAIN,
     ENASOLAR_UNIT_MAPPINGS,
     SCAN_METERS_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
@@ -45,6 +47,10 @@ async def async_setup_entry(
     enasolar.dc_strings = entry.data[CONF_DC_STRINGS]
     enasolar.max_output = entry.data[CONF_MAX_OUTPUT]
     enasolar.inverter_name = entry.data[CONF_NAME]
+    if CONF_NO_SUN in entry.options:
+        enasolar.no_sun = entry.options[CONF_NO_SUN]
+    else:
+        enasolar.no_sun = False
 
     coordinator = EnaSolarCoordinator(hass, enasolar)
 
@@ -53,10 +59,11 @@ async def async_setup_entry(
     enasolar.data_sensors = []
 
     _LOGGER.debug(
-        "Max Output: %s, DC Strings: %s, Capability: %s",
+        "Max Output: %s, DC Strings: %s, Capability: %s, No Sun: %s ",
         enasolar.max_output,
         enasolar.dc_strings,
         enasolar.capability,
+        enasolar.no_sun,
     )
 
     enasolar.setup_sensors()
@@ -89,7 +96,7 @@ class EnaSolarEntity(CoordinatorEntity, SensorEntity):
         coordinator: DataUpdateCoordinator,
         pyenasolar_sensor,
         inverter_name: str = None,
-        serial_no: str = None
+        serial_no: str = None,
     ) -> None:
         """Initialize the EnaSolar sensor."""
 
@@ -124,7 +131,10 @@ class EnaSolarEntity(CoordinatorEntity, SensorEntity):
         """Return the device class the sensor belongs to."""
         if self._attr_native_unit_of_measurement == UnitOfPower.WATT:
             return SensorDeviceClass.POWER
-        if self._attr_native_unit_of_measurement == UnitOfEnergy.WATT_HOUR:
+        if self._attr_native_unit_of_measurement in (
+            UnitOfEnergy.WATT_HOUR,
+            UnitOfEnergy.KILO_WATT_HOUR,
+        ):
             return SensorDeviceClass.ENERGY
         if self._attr_native_unit_of_measurement in (
             UnitOfTemperature.CELSIUS,
@@ -159,13 +169,14 @@ class EnaSolarEntity(CoordinatorEntity, SensorEntity):
         if update:
             self.async_write_ha_state()
 
+
 class EnaSolarCoordinator(DataUpdateCoordinator):
     """Cordinator for EnaSolar Inverter Sensors."""
 
     def __init__(self, hass: HomeAssistant, enasolar) -> None:
         super().__init__(
             hass,
-             _LOGGER,
+            _LOGGER,
             name="EnaSolar Inverter",
             update_interval=timedelta(seconds=SCAN_METERS_INTERVAL),
         )
@@ -175,7 +186,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Get the sensor data from the inverter."""
 
-        if is_up(self.hass):
+        if is_up(self.hass) or self.enasolar.no_sun:
             meter_values = await self.enasolar.read_meters()
         else:
             meter_values = False
@@ -196,7 +207,7 @@ class EnaSolarCoordinator(DataUpdateCoordinator):
                 "Meter Sensor %s updated => %s", sensor.sensor.key, sensor.native_value
             )
 
-        if is_up(self.hass):
+        if is_up(self.hass) or self.enasolar.no_sun:
             data_values = await self.enasolar.read_data()
         else:
             data_values = False
