@@ -36,7 +36,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ):
@@ -63,7 +62,7 @@ async def async_setup_entry(
         enasolar.max_output,
         enasolar.dc_strings,
         enasolar.capability,
-        enasolar.no_sun,
+        enasolar.no_sun
     )
 
     enasolar.setup_sensors()
@@ -84,7 +83,6 @@ async def async_setup_entry(
                 )
 
     async_add_entities([*enasolar.meter_sensors, *enasolar.data_sensors])
-
     await coordinator.async_config_entry_first_refresh()
 
 
@@ -96,7 +94,7 @@ class EnaSolarEntity(CoordinatorEntity, SensorEntity):
         coordinator: DataUpdateCoordinator,
         pyenasolar_sensor,
         inverter_name: str = None,
-        serial_no: str = None,
+        serial_no: str = None
     ) -> None:
         """Initialize the EnaSolar sensor."""
 

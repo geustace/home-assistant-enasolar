@@ -18,6 +18,7 @@ DEFAULT_NAME = ""
 
 CONF_HOST = "host"
 CONF_NAME = "name"
+CONF_NO_SUN = "no_sun"
 CONF_CAPABILITY = "capability"
 CONF_MAX_OUTPUT = "max_output"
 CONF_DC_STRINGS = "dc_strings"

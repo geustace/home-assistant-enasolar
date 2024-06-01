@@ -9,6 +9,7 @@
       },
       "inverter": {
         "title": "EnaSolar Model Characteristics",
+        "description": "If the capabilities can not be determined or are incorrect,\n\nthey can be overriden",
         "data": {
            "max_output": "Maximum AC Output Power",
            "dc_strings": "Number of DC strings in the array",
@@ -33,11 +34,11 @@
   "options": {
     "step": {
       "init": {
-        "data": {
-          "sun_up": "The time that polling will start each day",
-          "sun_down": "The time that polling will cease each day"
-        },
-        "title": "EnaSolar Polling"
+          "title": "EnaSolar Polling",
+          "description": "For a typical solar installation, there is no point in polling when the sun is down.\n\nIf the inverter is being used with an alternative DC source e.g. a wind turbine, polling may be appropriate.\n\nAfter updating, it may be necessary to manually reload the intergration",
+          "data": {
+            "no_sun": "Poll even when no Sun"
+          }
       }
     }
   }
