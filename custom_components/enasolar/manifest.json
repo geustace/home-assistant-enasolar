@@ -4,7 +4,7 @@
   "version": "2.1.2",
   "documentation": "https://github.com/geustace/home-assistant-enasolar/blob/main/README.md",
   "requirements": [
-      "pyenasolar==0.2.2"
+      "pyenasolar==1.0.0"
   ],
   "codeowners": ["@geustace"],
   "iot_class": "local_polling",
