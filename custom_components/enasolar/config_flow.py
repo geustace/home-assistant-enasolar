@@ -104,9 +104,9 @@ class EnaSolarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if error is not None:
                     _errors[CONF_HOST] = error
                 else:
-                    if self._conf_for_inverter_exists(self._enasolar.get_serial_no()):
+                    if self._conf_for_inverter_exists(str(self._enasolar.get_serial_no())):
                         return self.async_abort(reason="already_configured")
-                    await self.async_set_unique_id(self._enasolar.get_serial_no())
+                    await self.async_set_unique_id(str(self._enasolar.get_serial_no()))
                     return await self.async_step_inverter(None)
         else:
             user_input = {}
